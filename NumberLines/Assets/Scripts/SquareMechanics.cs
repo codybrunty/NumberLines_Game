@@ -16,18 +16,19 @@ public class SquareMechanics : MonoBehaviour{
     public int gameNumber = 0;//in game number
     public int lockedSquareIndex = 0;//keep track of the locked square groups per puzzle
     public bool locked = false;//number squares
+    public int lockStatus = 0;//0none,1vert,2hor
     public bool key = false;
 
     [Header("Display")]
-    [SerializeField] SpriteRenderer spriteColor = default;
+    public SpriteRenderer spriteColor = default;
     [SerializeField] SpriteRenderer spriteNumber = default;
     [SerializeField] SpriteRenderer spriteKey = default;
     [SerializeField] List<Sprite> allNumbers = new List<Sprite>();
+    public Color nuetralColor;
 
 
 
     public void SquareSetup() {
-        Debug.Log(gameNumber);
         if (gameNumber > 1) {
             SetLockedSquare();
         }
@@ -47,5 +48,17 @@ public class SquareMechanics : MonoBehaviour{
         spriteNumber.enabled = true;
         spriteNumber.sprite = allNumbers[gameNumber-2];//all numbers {2,3,4,5,6,7,8}
     }
+
+    public void ResetSquare() {
+        Debug.Log("resetmech "+ gameObject.name);
+        gameNumber = 0;
+        lockedSquareIndex = 0;
+        SetSquareColorDisplay(nuetralColor);
+    }
+
+    public void SetSquareColorDisplay(Color displayColor) {
+        spriteColor.color = displayColor;
+    }
+
 
 }

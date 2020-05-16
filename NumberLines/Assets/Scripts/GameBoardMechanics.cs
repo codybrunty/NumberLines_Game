@@ -16,17 +16,17 @@ public class GameBoardMechanics : MonoBehaviour{
     [SerializeField] ColorToNumber[] colorNumbering = default;
     [SerializeField] GameObject cameraHolder = default;
     [SerializeField] GameObject square = default;
+    [SerializeField] RaycastMouse raycast = default;
 
-    private List<GameObject> gameBoard_squares = new List<GameObject>();
-    private List<GameObject> gameBoard_squares_locked = new List<GameObject>();
+    public List<GameObject> gameBoard_squares = new List<GameObject>();
+    public List<GameObject> gameBoard_squares_locked = new List<GameObject>();
     private List<GameObject> gameBoard_squares_keys = new List<GameObject>();
 
 
-    private void Start() {
+    public void StartGame() {
         SetUpCamera();
         CreateGameBoardSquares();
     }
-
 
     private void SetUpCamera() {
         cameraHolder.transform.position = new Vector3((float)(gameBoardWidth - 1) / 2f, (float)(gameBoardHeight - 1) / 2f, -10f);
@@ -42,7 +42,7 @@ public class GameBoardMechanics : MonoBehaviour{
             Camera.main.orthographicSize = horizontalSize;
         }
 
-        cameraHolder.transform.localPosition = cameraHolder.transform.localPosition + new Vector3(0f, 1f, 0f);
+        cameraHolder.transform.localPosition = cameraHolder.transform.localPosition + new Vector3(0f, 0f, 0f);
     }
 
     private void CreateGameBoardSquares() {
@@ -51,6 +51,7 @@ public class GameBoardMechanics : MonoBehaviour{
                 Generate_GameboardSquare(x, y);
             }
         }
+        raycast.SetUpLockedIndexLists();
     }
 
     private void Generate_GameboardSquare(float x, float y) {
@@ -64,12 +65,11 @@ public class GameBoardMechanics : MonoBehaviour{
 
         Color pixelColor = currentLevel.GetPixel(Convert.ToInt32(x), Convert.ToInt32(y));
         foreach (ColorToNumber colorNumber in colorNumbering) {
-            Debug.Log(pixelColor);
             if (colorNumber.color == pixelColor) {
                 newSquare.GetComponent<SquareMechanics>().gameNumber = colorNumber.number;
                 if (colorNumber.number > 1) {
                     gameBoard_squares_locked.Add(newSquare);
-                    newSquare.GetComponent<SquareMechanics>().lockedSquareIndex = gameBoard_squares_locked.Count-1;
+                    newSquare.GetComponent<SquareMechanics>().lockedSquareIndex = gameBoard_squares_locked.Count;
                 }
                 else if (colorNumber.number == 1) {
                     gameBoard_squares_keys.Add(newSquare);
@@ -78,5 +78,13 @@ public class GameBoardMechanics : MonoBehaviour{
         }
         newSquare.GetComponent<SquareMechanics>().SquareSetup();
         gameBoard_squares.Add(newSquare);
+    }
+
+    public void ResetAllSquaresOnGameBoardWithLockedIndex(int lockedIndex) {
+        for (int i = 0; i < gameBoard_squares.Count; i++) {
+            if (gameBoard_squares[i].GetComponent<SquareMechanics>().lockedSquareIndex == lockedIndex && gameBoard_squares[i].GetComponent<SquareMechanics>().locked == false) {
+                gameBoard_squares[i].GetComponent<SquareMechanics>().ResetSquare();
+            }
+        }
     }
 }
