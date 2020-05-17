@@ -25,6 +25,7 @@ public class SquareMechanics : MonoBehaviour{
     [SerializeField] SpriteRenderer spriteKey = default;
     [SerializeField] List<Sprite> allNumbers = new List<Sprite>();
     public Color nuetralColor;
+    public Color badColor;
 
 
 
@@ -47,13 +48,19 @@ public class SquareMechanics : MonoBehaviour{
         locked = true;
         spriteNumber.enabled = true;
         spriteNumber.sprite = allNumbers[gameNumber-2];//all numbers {2,3,4,5,6,7,8}
+        SetSquareColorDisplay(badColor);
     }
 
     public void ResetSquare() {
         Debug.Log("resetmech "+ gameObject.name);
         gameNumber = 0;
         lockedSquareIndex = 0;
-        SetSquareColorDisplay(nuetralColor);
+        if (!locked) {
+            SetSquareColorDisplay(nuetralColor);
+        }
+        else {
+            SetSquareColorDisplay(badColor);
+        }
     }
 
     public void SetSquareColorDisplay(Color displayColor) {

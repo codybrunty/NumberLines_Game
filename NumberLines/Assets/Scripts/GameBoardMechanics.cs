@@ -11,6 +11,7 @@ public class GameBoardMechanics : MonoBehaviour{
     public float borderSize = 0.25f;
     public bool touchEnabled = true;
     public Texture2D currentLevel;
+    public List<Texture2D> allLevels = new List<Texture2D>();
 
     [Header("Game Objects")]
     [SerializeField] ColorToNumber[] colorNumbering = default;
@@ -24,8 +25,15 @@ public class GameBoardMechanics : MonoBehaviour{
 
 
     public void StartGame() {
+        GetLevel();
         SetUpCamera();
         CreateGameBoardSquares();
+    }
+
+    private void GetLevel() {
+        currentLevel = allLevels[UnityEngine.Random.Range(0, allLevels.Count)];
+        gameBoardWidth = currentLevel.width;
+        gameBoardHeight = currentLevel.height;
     }
 
     private void SetUpCamera() {
