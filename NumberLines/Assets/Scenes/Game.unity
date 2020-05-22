@@ -1699,10 +1699,11 @@ MonoBehaviour:
   gameBoardWidth: 0
   gameBoardHeight: 0
   borderSize: 0.25
-  touchEnabled: 1
+  touchEnabled: 0
   currentLevel: {fileID: 0}
   allLevels:
   - {fileID: 2800000, guid: 5a460cdaf5d959e44b66348cd29f8d13, type: 3}
+  - {fileID: 2800000, guid: 9376cbf3e7c641040bcf11a8d7a5be93, type: 3}
   colorNumbering:
   - color: {r: 1, g: 0, b: 0, a: 1}
     number: 2
@@ -1725,6 +1726,7 @@ MonoBehaviour:
   cameraHolder: {fileID: 980520035}
   square: {fileID: 4883694044421156407, guid: 246a21d764e71164ea235d75cebb5e17, type: 3}
   raycast: {fileID: 888079614}
+  tapPanel: {fileID: 609401312}
   gameBoard_squares: []
   gameBoard_squares_locked: []
 --- !u!4 &831369034

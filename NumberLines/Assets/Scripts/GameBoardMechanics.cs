@@ -9,7 +9,7 @@ public class GameBoardMechanics : MonoBehaviour{
     public int gameBoardWidth = 8;
     public int gameBoardHeight = 8;
     public float borderSize = 0.25f;
-    public bool touchEnabled = true;
+    public bool touchEnabled = false;
     public Texture2D currentLevel;
     public List<Texture2D> allLevels = new List<Texture2D>();
 
@@ -18,6 +18,7 @@ public class GameBoardMechanics : MonoBehaviour{
     [SerializeField] GameObject cameraHolder = default;
     [SerializeField] GameObject square = default;
     [SerializeField] RaycastMouse raycast = default;
+    [SerializeField] GameObject tapPanel = default;
 
     public List<GameObject> gameBoard_squares = new List<GameObject>();
     public List<GameObject> gameBoard_squares_locked = new List<GameObject>();
@@ -25,6 +26,7 @@ public class GameBoardMechanics : MonoBehaviour{
 
 
     public void StartGame() {
+        touchEnabled = true;
         GetLevel();
         SetUpCamera();
         CreateGameBoardSquares();
@@ -95,4 +97,46 @@ public class GameBoardMechanics : MonoBehaviour{
             }
         }
     }
+
+    public void CheckGameWin() {
+        int badConditions = 0;
+
+        for (int i = 0; i < gameBoard_squares_keys.Count; i++) {
+            if (gameBoard_squares_keys[i].GetComponent<SquareMechanics>().gameNumber == 0) {
+                badConditions++;
+            }
+        }
+
+        for (int i = 0; i < gameBoard_squares_locked.Count; i++) {
+            if (gameBoard_squares_locked[i].GetComponent<SquareMechanics>().lockCompleted != true) {
+                badConditions++;
+            }
+        }
+
+        if (badConditions == 0) {
+            PuzzleWin();
+        }
+
+    }
+
+    private void PuzzleWin() {
+        Debug.Log("Puzzle Completed!");
+        touchEnabled = false;
+        ClearGameItems();
+        TapToStartOn();
+    }
+
+    private void TapToStartOn() {
+        tapPanel.SetActive(true);
+    }
+
+    private void ClearGameItems() {
+        gameBoard_squares.Clear();
+        gameBoard_squares_locked.Clear();
+        gameBoard_squares_keys.Clear();
+        foreach (Transform child in gameObject.transform){
+            Destroy(child.gameObject);
+        }
+    }
+
 }

@@ -17,6 +17,7 @@ public class SquareMechanics : MonoBehaviour{
     public int lockedSquareIndex = 0;//keep track of the locked square groups per puzzle
     public bool locked = false;//number squares
     public int lockStatus = 0;//0none,1vert,2hor
+    public bool lockCompleted = false;
     public bool key = false;
 
     [Header("Display")]

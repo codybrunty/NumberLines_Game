@@ -62,6 +62,7 @@ public class RaycastMouse : MonoBehaviour{
 
                     CurrentListColorCheck();
                     ResetMainSquaresStatusCheck();
+                    CheckGameWin();
                 }
             }
         }
@@ -76,6 +77,7 @@ public class RaycastMouse : MonoBehaviour{
 
             CurrentListColorCheck();
             ResetMainSquaresStatusCheck();
+            CheckGameWin();
 
             clickedLockIndex = 0;
             clickedColorNumber = 0;
@@ -114,7 +116,7 @@ public class RaycastMouse : MonoBehaviour{
                 MainStatusNone(square);
             }
         }
-        else {
+        else if (square.GetComponent<SquareMechanics>().lockedSquareIndex == clickedLockIndex) {
             BackTrackToSquare(square,false);
         }
     }
@@ -199,6 +201,7 @@ public class RaycastMouse : MonoBehaviour{
         }
         else {
             Debug.Log("Square is not in the same vertical row as Main");
+            CheckIfNextToMainHorizontal(square);
         }
     }
 
@@ -254,8 +257,45 @@ public class RaycastMouse : MonoBehaviour{
         }
         else {
             Debug.Log("Square is not in the same vertical row as Main");
+            CheckIfNextToMainVert(square);
         }
         
+    }
+
+    private void CheckIfNextToMainVert(GameObject square) {
+        Debug.Log("Checking to see if its vertical adjescent");
+        int mainX = mainSquares[clickedLockIndex - 1].GetComponent<SquareMechanics>().gamePositionX;
+        int squareX = square.GetComponent<SquareMechanics>().gamePositionX;
+        int mainIndex = mainSquares[clickedLockIndex - 1].GetComponent<SquareMechanics>().gamePositionIndex;
+        int squareindex = square.GetComponent<SquareMechanics>().gamePositionIndex;
+
+        if (mainX == squareX) {
+            if (squareindex == mainIndex + 1 || squareindex == mainIndex -1) {
+                Debug.Log("yes its vertical adjescent");
+                square.transform.parent.GetComponent<GameBoardMechanics>().ResetAllSquaresOnGameBoardWithLockedIndex(clickedLockIndex);
+                RemoveAllSquaresInClickedIndexListExceptMain();
+                mainSquares[clickedLockIndex - 1].GetComponent<SquareMechanics>().lockStatus = 1;
+                MainStatusVertical(square);
+            }
+        }
+    }
+
+    private void CheckIfNextToMainHorizontal(GameObject square) {
+        Debug.Log("Checking to see if its horizontal adjescent");
+        int mainY = mainSquares[clickedLockIndex - 1].GetComponent<SquareMechanics>().gamePositionY;
+        int squareY = square.GetComponent<SquareMechanics>().gamePositionY;
+        int mainIndex = mainSquares[clickedLockIndex - 1].GetComponent<SquareMechanics>().gamePositionIndex;
+        int squareindex = square.GetComponent<SquareMechanics>().gamePositionIndex;
+
+        if (mainY == squareY) {
+            if (squareindex == mainIndex + gameboard.gameBoardHeight || squareindex == mainIndex - gameboard.gameBoardHeight) {
+                Debug.Log("yes its horizontal adjescent");
+                square.transform.parent.GetComponent<GameBoardMechanics>().ResetAllSquaresOnGameBoardWithLockedIndex(clickedLockIndex);
+                RemoveAllSquaresInClickedIndexListExceptMain();
+                mainSquares[clickedLockIndex - 1].GetComponent<SquareMechanics>().lockStatus = 2;
+                MainStatusHorizontal(square);
+            }
+        }
     }
 
     private int CheckIfAnyEmptyBetweenHorizontal(int start, int end) {
@@ -350,11 +390,11 @@ public class RaycastMouse : MonoBehaviour{
         //locked numbers are clicked resets them
         else if (square == clickedSquare && square.GetComponent<SquareMechanics>().locked) {
             square.transform.parent.GetComponent<GameBoardMechanics>().ResetAllSquaresOnGameBoardWithLockedIndex(clickedLockIndex);
-            RemoveAllSquaresInIndexListExceptMain();
+            RemoveAllSquaresInClickedIndexListExceptMain();
         } 
     }
 
-    private void RemoveAllSquaresInIndexListExceptMain() {
+    private void RemoveAllSquaresInClickedIndexListExceptMain() {
         indexLists[clickedLockIndex - 1].squares.Clear();
         indexLists[clickedLockIndex - 1].squares.Add(mainSquares[clickedLockIndex - 1]);
     }
@@ -368,6 +408,8 @@ public class RaycastMouse : MonoBehaviour{
     }
 
     public void SetUpLockedIndexLists() {
+        indexLists.Clear();
+        mainSquares.Clear();
         indexLists = new List<SquareLockedIndexList>();
         for (int i = 0; i < gameboard.gameBoard_squares_locked.Count; i++) {
             indexLists.Add(new SquareLockedIndexList());
@@ -393,8 +435,8 @@ public class RaycastMouse : MonoBehaviour{
                     if (indexLists[clickedLockIndex - 1].squares[i].GetComponent<SquareMechanics>().spriteColor.color != goodColor) {
                         indexLists[clickedLockIndex - 1].squares[i].GetComponent<SquareMechanics>().SetSquareColorDisplay(goodColor);
                     }
-
                 }
+                mainSquares[clickedLockIndex - 1].GetComponent<SquareMechanics>().lockCompleted = true;
             }
             else {
                 for (int i = 0; i < indexLists[clickedLockIndex - 1].squares.Count; i++) {
@@ -402,11 +444,17 @@ public class RaycastMouse : MonoBehaviour{
                         indexLists[clickedLockIndex - 1].squares[i].GetComponent<SquareMechanics>().SetSquareColorDisplay(badColor);
                     }
                 }
+                mainSquares[clickedLockIndex - 1].GetComponent<SquareMechanics>().lockCompleted = false;
             }
 
 
 
         }
     }
+
+    private void CheckGameWin() {
+        gameboard.CheckGameWin();
+    }
+
 }
 
