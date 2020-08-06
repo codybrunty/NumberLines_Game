@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using UnityEngine;
+using TMPro;
 
 public class GameBoardMechanics : MonoBehaviour{
 
@@ -10,20 +13,28 @@ public class GameBoardMechanics : MonoBehaviour{
     public int gameBoardHeight = 8;
     public float borderSize = 0.25f;
     public bool touchEnabled = false;
-    public Texture2D currentLevel;
+    public string currentLevel;
+    [SerializeField] TextAsset allPuzzlesFile;
     public List<Texture2D> allLevels = new List<Texture2D>();
 
     [Header("Game Objects")]
-    [SerializeField] ColorToNumber[] colorNumbering = default;
+    [SerializeField] SymbolToNumber[] symbolNumbering = default;
     [SerializeField] GameObject cameraHolder = default;
     [SerializeField] GameObject square = default;
     [SerializeField] RaycastMouse raycast = default;
     [SerializeField] GameObject tapPanel = default;
+    [SerializeField] TextMeshProUGUI displayText = default;
 
     public List<GameObject> gameBoard_squares = new List<GameObject>();
     public List<GameObject> gameBoard_squares_locked = new List<GameObject>();
     private List<GameObject> gameBoard_squares_keys = new List<GameObject>();
 
+    private string[] puzzleLines;
+    private int currentLevelIndex;
+
+    private void Awake() {
+        LoadPuzzles();
+    }
 
     public void StartGame() {
         touchEnabled = true;
@@ -33,9 +44,18 @@ public class GameBoardMechanics : MonoBehaviour{
     }
 
     private void GetLevel() {
-        currentLevel = allLevels[UnityEngine.Random.Range(0, allLevels.Count)];
-        gameBoardWidth = currentLevel.width;
-        gameBoardHeight = currentLevel.height;
+        currentLevelIndex = UnityEngine.Random.Range(0, puzzleLines.Length);
+        currentLevel = puzzleLines[currentLevelIndex].Trim();
+        currentLevel = currentLevel.Substring(0, (currentLevel.Length - 1));
+        string[] rows=currentLevel.Split(',');
+        currentLevel = string.Join("", rows);
+        gameBoardWidth = rows[0].Length;
+        gameBoardHeight = rows.Length;
+        displayText.text = (currentLevelIndex+1).ToString();
+    }
+
+    private void LoadPuzzles() {
+        puzzleLines = allPuzzlesFile.text.Split('\n');
     }
 
     private void SetUpCamera() {
@@ -73,19 +93,23 @@ public class GameBoardMechanics : MonoBehaviour{
         newSquare.GetComponent<SquareMechanics>().gamePositionY = Convert.ToInt32(y);
         newSquare.GetComponent<SquareMechanics>().gamePositionIndex = gameBoard_squares.Count;
 
-        Color pixelColor = currentLevel.GetPixel(Convert.ToInt32(x), Convert.ToInt32(y));
-        foreach (ColorToNumber colorNumber in colorNumbering) {
-            if (colorNumber.color == pixelColor) {
-                newSquare.GetComponent<SquareMechanics>().gameNumber = colorNumber.number;
-                if (colorNumber.number > 1) {
+        int currentLevelIndex = (((gameBoardHeight - 1) - (int)y) * gameBoardWidth) + (int)x;
+        char textSymbol = currentLevel[currentLevelIndex];
+        //Debug.Log(textSymbol);
+
+        foreach (SymbolToNumber symbolNumber in symbolNumbering) {
+            if (symbolNumber.symbol == textSymbol) {
+                newSquare.GetComponent<SquareMechanics>().gameNumber = symbolNumber.number;
+                if (symbolNumber.number > 1) {
                     gameBoard_squares_locked.Add(newSquare);
                     newSquare.GetComponent<SquareMechanics>().lockedSquareIndex = gameBoard_squares_locked.Count;
                 }
-                else if (colorNumber.number == 1) {
+                else if (symbolNumber.number == 1) {
                     gameBoard_squares_keys.Add(newSquare);
                 }
             }
         }
+        
         newSquare.GetComponent<SquareMechanics>().SquareSetup();
         gameBoard_squares.Add(newSquare);
     }

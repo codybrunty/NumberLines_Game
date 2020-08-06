@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 [System.Serializable]
-public class ColorToNumber {
-    public Color color;
+public class SymbolToNumber {
+    public char symbol;
     public int number;
 }
